@@ -16,10 +16,10 @@ type walletFacade struct {
 }
 
 //создание фасада
-func newWalletFacade(accountId string, code int) *walletFacade {
+func newWalletFacade(accountID string, code int) *walletFacade {
 	fmt.Println("Начато создание аккаунта")
 	walletFacade := &walletFacade{
-		account:      newAccount(accountId),
+		account:      newAccount(accountID),
 		securityCode: newSecurityCode(code),
 		wallet:       newWallet(),
 		notification: &notification{},

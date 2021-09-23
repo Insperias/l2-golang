@@ -164,7 +164,7 @@ func (s *hasMoneyState) insertMoney(money int) error {
 
 func (s *hasMoneyState) dispenseItem() error {
 	fmt.Println("Выдача товара")
-	s.vendingMachine.itemCount -= 1
+	s.vendingMachine.itemCount--
 	if s.vendingMachine.itemCount == 0 {
 		s.vendingMachine.setState(s.vendingMachine.noItem)
 	} else {
