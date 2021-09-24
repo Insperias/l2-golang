@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Insperias/l2_golang/develop/dev11/go-calendar/internal/domain"
+	"github.com/Insperias/l2-golang/develop/dev11/go-calendar/internal/domain"
 )
 
 type eventCreateRequest struct {

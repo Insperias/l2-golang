@@ -1,9 +1,9 @@
 package api
 
 import (
-	"github.com/Insperias/l2_golang/develop/dev_11/go-calendar/api/handler"
-	"github.com/Insperias/l2_golang/develop/dev_11/go-calendar/api/middleware"
-	"github.com/Insperias/l2_golang/develop/dev_11/go-calendar/internal/domain"
+	"github.com/Insperias/l2-golang/develop/dev11/go-calendar/api/handler"
+	"github.com/Insperias/l2-golang/develop/dev11/go-calendar/api/middleware"
+	"github.com/Insperias/l2-golang/develop/dev11/go-calendar/internal/domain"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 
