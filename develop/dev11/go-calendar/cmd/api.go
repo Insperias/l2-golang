@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/Insperias/lvl2-golang/develop/dev11/go-calendar/api"
-	"github.com/Insperias/lvl2-golang/develop/dev11/go-calendar/internal/domain"
+	"github.com/Insperias/l2-golang/develop/dev11/go-calendar/api"
+	"github.com/Insperias/l2-golang/develop/dev11/go-calendar/internal/domain"
 	"github.com/spf13/cobra"
 )
 
