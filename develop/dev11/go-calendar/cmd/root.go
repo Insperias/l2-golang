@@ -12,6 +12,7 @@ var rootCmd = &cobra.Command{
 	Use: "go-calendar [command]",
 }
 
+//Execute Execute CLI
 func Execute() {
 	rootCmd.AddCommand(apiServerCmd)
 
