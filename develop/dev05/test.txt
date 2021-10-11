@@ -1,6 +1,10 @@
 abcabcabc
 aaabbbccc
+AsD(A|b|C)
 acdasdasc
 abbaaaasf
+acdaSdasc
+acdaSdcasc
 artksddas
+asd(a|b|c)
 qwertaabc

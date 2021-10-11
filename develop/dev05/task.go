@@ -31,6 +31,7 @@ type regexChecker struct {
 	R *regexp.Regexp
 }
 
+//NewRegexChecker ...
 func NewRegexChecker(r *regexp.Regexp) *regexChecker {
 	return &regexChecker{R: r}
 }
@@ -43,6 +44,7 @@ type equalChecker struct {
 	pat string
 }
 
+//NewEqualChecker ...
 func NewEqualChecker(pat string) *equalChecker {
 	return &equalChecker{pat: pat}
 }
@@ -51,16 +53,20 @@ func (c *equalChecker) check(s string) bool {
 	return strings.Contains(s, c.pat)
 }
 
+//Grep ...
 func Grep(r io.Reader, pattern string, fg *flags) (string, error) {
 	var chr checker
 
+	//если игнорировать регистр, то переводим все в нижний регистр
 	if fg.IgnoreCase {
 		pattern = strings.ToLower(pattern)
 	}
 
 	if fg.Fixed {
+		//если точное совпадение, то проверяем строку
 		chr = NewEqualChecker(pattern)
 	} else {
+		//если паттерн, то компилируем как регулярное выражение
 		rx, err := regexp.Compile(pattern)
 		if err != nil {
 			return "", err
@@ -68,85 +74,103 @@ func Grep(r io.Reader, pattern string, fg *flags) (string, error) {
 		chr = NewRegexChecker(rx)
 	}
 
-	lt := fg.Context
-	rt := fg.Context
+	lm := fg.Context //количество строк перед найденной
+	rm := fg.Context //количество строк после найденной
 	if fg.Before > 0 {
-		lt = fg.Before
+		lm = fg.Before
 	}
 	if fg.After > 0 {
-		rt = fg.After
+		rm = fg.After
 	}
 
-	strgs := make(map[int]bool)
+	outStrgsInd := make(map[int]bool) //карта для индексов строк, которые нужно будет вывести
 	var resIds []int
 	var allStr []string
 
 	var counter, i int
 	sc := bufio.NewScanner(r)
+	//считываем строки
 	for sc.Scan() {
 		txt := sc.Text()
 		allStr = append(allStr, txt)
 		if fg.IgnoreCase {
+			//если игнорировать регистр, то переводим в нижний регистр
 			txt = strings.ToLower(txt)
 		}
 
+		//если нашли совпадение
 		if chr.check(txt) {
 			counter++
-			if lt > 0 {
-				for j := i - lt; j < i; j++ {
-					if _, ok := strgs[j]; !ok {
+			//записываем все индексы строк перед найденной, если нужно
+			if lm > 0 {
+				for j := i - lm; j < i; j++ {
+					if _, ok := outStrgsInd[j]; !ok {
 						resIds = append(resIds, j)
-						strgs[j] = false
-					}
-				}
-			}
-			if rt > 0 {
-				for j := i + rt; j > i; j-- {
-					if _, ok := strgs[j]; !ok {
-						resIds = append(resIds, j)
-						strgs[j] = false
+						outStrgsInd[j] = false
 					}
 				}
 			}
 
-			if _, ok := strgs[i]; !ok {
+			//записываем все индексы строк после найденной, если нужно
+			if rm > 0 {
+				for j := i + rm; j > i; j-- {
+					if _, ok := outStrgsInd[j]; !ok {
+						resIds = append(resIds, j)
+						outStrgsInd[j] = false
+					}
+				}
+			}
+
+			//записать индекс найденной строки и обозначить true, как найденную
+			if _, ok := outStrgsInd[i]; !ok {
 				resIds = append(resIds, i)
 			}
-			strgs[i] = true
+			outStrgsInd[i] = true
 		}
 		i++
 
 	}
 
+	//если нужно только количество, то возвращаем и выходим
 	if fg.Count {
 		return fmt.Sprintf("%v matches", counter), nil
 	}
 
+	//сортируем индексы для упорядоченного вывода
 	sort.Ints(resIds)
 
 	var res []string
 	lIndex := ""
+	//если выводить найденные
 	if !fg.Invert {
-		match := "  "
+		match := ""
 		for _, k := range resIds {
+			//проверяем, чтобы не выйти за границы, т.к. могли быть добавлены элементы с индексами <0 и >len(allStr)
 			if k > -1 && k < len(allStr) {
-				if strgs[k] {
-					match = "* "
+				//если это найденная строка, то добавить + как найденная
+				if outStrgsInd[k] {
+					match = "+ "
 				} else {
 					match = " "
 				}
 				if fg.LineNumber {
-					lIndex = strconv.Itoa(k) + " "
+					//если нужно выводить с номером строки, то дописать
+					lIndex = strconv.Itoa(k+1) + " "
 				}
+				//добавить все в результат
 				res = append(res, fmt.Sprintf("%v%v%v", lIndex, match, allStr[k]))
 			}
 		}
 	} else {
+		//иначе нужно выводить те, которые не были найдены
 		for i, v := range allStr {
-			if _, ok := strgs[i]; !ok {
+			//если не добавляли в карту нужных для вывода строк
+			if _, ok := outStrgsInd[i]; !ok {
 				if fg.LineNumber {
-					lIndex = strconv.Itoa(i) + " "
+					//добавить номер строки
+					lIndex = strconv.Itoa(i+1) + " "
 				}
+				//добавить в результат
 				res = append(res, fmt.Sprintf("%v%v", lIndex, v))
 			}
 		}
@@ -173,12 +197,14 @@ func main() {
 		return
 	}
 
+	//файл с исходными данными
 	reader, err := os.Open(flag.Arg(1))
 	if err != nil {
 		fmt.Println("grep err: ", err.Error())
 		return
 	}
 
+	//паттерн
 	pattern := flag.Arg(0)
 
 	res, err := Grep(reader, pattern, fg)
