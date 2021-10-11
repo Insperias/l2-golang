@@ -27,7 +27,7 @@ type eventCreateResponse struct {
 // 	title: string
 // 	date_from: datetime, format 2006-01-02T12:00:00Z
 // 	date_to: datetime, format 2006-01-02T13:00:00Z
-func (h *Handler) EventCreatehandler(req *http.Request) APIResponse {
+func (h *Handler) EventCreateHandler(req *http.Request) APIResponse {
 	data := &eventCreateRequest{}
 	if err := data.parse(req); err != nil {
 		return h.Error(http.StatusBadRequest, err)

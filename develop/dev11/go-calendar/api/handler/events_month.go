@@ -9,7 +9,7 @@ import (
 // GET /events_for_month
 // Fields:
 // 	start_day: format 2006-01-02
-func (h *Handler) EventsForMonthsHandler(req *http.Request) APIResponse {
+func (h *Handler) EventsForMonthHandler(req *http.Request) APIResponse {
 	data := &eventsForDateRequest{}
 	if err := data.parse(req); err != nil {
 		return h.Error(http.StatusBadRequest, err)

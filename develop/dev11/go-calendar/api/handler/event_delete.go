@@ -15,7 +15,7 @@ type eventDeleteRequest struct {
 // POST /delete_event
 // Fields:
 //     id : UUID
-func (h *Handler) EventDeleteHanler(req *http.Request) APIResponse {
+func (h *Handler) EventDeleteHandler(req *http.Request) APIResponse {
 	data := &eventDeleteRequest{}
 	if err := data.parse(req); err != nil {
 		return h.Error(http.StatusBadRequest, err)
